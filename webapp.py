@@ -128,6 +128,8 @@ def tab_summarizer():
         list(dict_meetings.values()).index(selected_meeting)
     ]
     dir_meeting = DIR_FILES / meeting_date
+    format_date = datetime.strptime(meeting_date, "%Y-%m-%d-%H-%M-%S")
+    meeting_date = format_date.strftime("%Y/%m/%d %H:%M:%S")
     title = read_text_file(dir_meeting / "title.txt")
     transcription = read_text_file(dir_meeting / "transcription.txt")
     abstract = read_text_file(dir_meeting / "abstract.txt")
@@ -136,7 +138,7 @@ def tab_summarizer():
         abstract = read_text_file(dir_meeting / "abstract.txt")
 
     st.markdown(f"# **{title}**")
-    st.markdown(f"## **Meeting Date:** {selected_meeting}")
+    st.markdown(f"## **Meeting Date:** {meeting_date}")
     st.markdown("### **Abstract:**")
     st.markdown(abstract)
     st.markdown("### **Transcription:**")
