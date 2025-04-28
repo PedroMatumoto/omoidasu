@@ -25,6 +25,37 @@ def get_meeting_title(transcription):
     return response.choices[0].message.content
 
 
+def generate_abstract(file_path, transcription):
+    """
+    Generate an abstract from the transcription file.
+    Args:
+        file_path: Path to the transcription file.
+    Returns:
+        Abstract text.
+    """
+    prompt = f"""Make an abstract of the text delimite by triple quotes:\n\"\"\"\n{transcription}\n\"\"\"\n
+    This text is a transcription of a meeting. The abstract should be a summary of the main points discussed in the meeting.
+    It should be concise and to the point, highlighting the key takeaways and conclusions drawn during the meeting.
+    The abstract should be no more than 300 words long and be written in a formal tone. In the end, provide a list of action items and decisions made during the meeting, in bullet points.
+    You must not create any new information, only summarize the text.
+    The final format should be:
+    - write the abstract here
+    **Action items:**
+    - write the action items here
+    **Decisions:** 
+    - write the decisions here
+
+
+    """
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0,
+    )
+    save_text_file(file_path / "abstract.txt", response.choices[0].message.content)
+
+
 def save_text_file(file_path, text):
     """
     Save the tedxt string to a file.
@@ -47,4 +78,6 @@ def read_text_file(file_path):
     if not file_path.exists():
         return ""
     with open(file_path, "r") as f:
-        return f.read()
+        text = f.read()
+        f.close()
+        return text

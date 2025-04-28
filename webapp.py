@@ -11,7 +11,7 @@ from dotenv import find_dotenv, load_dotenv
 
 from transcript import transcribe_audio
 from chatting import chat
-from utils import get_meeting_title, save_text_file, read_text_file
+from utils import get_meeting_title, save_text_file, read_text_file, generate_abstract
 
 DIR_FILES = Path(__file__).parent / "files"
 DIR_FILES.mkdir(exist_ok=True)
@@ -122,6 +122,7 @@ def tab_summarizer():
     selected_meeting = st.selectbox(
         "Select a meeting", options=list(dict_meetings.values())
     )
+
     st.divider()
     meeting_date = list(dict_meetings.keys())[
         list(dict_meetings.values()).index(selected_meeting)
@@ -129,8 +130,15 @@ def tab_summarizer():
     dir_meeting = DIR_FILES / meeting_date
     title = read_text_file(dir_meeting / "title.txt")
     transcription = read_text_file(dir_meeting / "transcription.txt")
+    abstract = read_text_file(dir_meeting / "abstract.txt")
+    if abstract == "":
+        generate_abstract(dir_meeting, transcription)
+        abstract = read_text_file(dir_meeting / "abstract.txt")
+
     st.markdown(f"# **{title}**")
     st.markdown(f"## **Meeting Date:** {selected_meeting}")
+    st.markdown("### **Abstract:**")
+    st.markdown(abstract)
     st.markdown("### **Transcription:**")
     st.markdown(transcription)
 
@@ -142,7 +150,11 @@ def main():
         layout="wide",
     )
 
-    st.header("Omoidasu - Meeting Synthesizer", divider=True)
+    st.image(
+        "assets/banner-omoidasu.png", use_container_width=True
+    )  # Adiciona imagem de banner
+    st.header("思 Omoidasu - Meeting Synthesizer", divider=True)
+
     st.write(
         "Omoidasu is an AI assistant that helps summarize meetings and create meeting minutes. "
         " It can assist in organizing the information discussed and producing a clear and concise summary."
