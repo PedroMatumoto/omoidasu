@@ -11,6 +11,7 @@ from dotenv import find_dotenv, load_dotenv
 
 from transcript import transcribe_audio
 from chatting import chat
+from utils import get_meeting_title, save_text_file, read_text_file
 
 DIR_FILES = Path(__file__).parent / "files"
 DIR_FILES.mkdir(exist_ok=True)
@@ -21,6 +22,14 @@ client = openai.OpenAI()
 
 
 def add_audio_chunk(audio_frame, audio_chunk):
+    """
+    Add audio frames to the audio chunk.
+    Args:
+        audio_frame: Audio frame to be added.
+        audio_chunk: Audio chunk to which the frame will be added.
+    Returns:
+        Audio chunk with the added frame.
+    """
     for frame in audio_frame:
         audio_chunk += pydub.AudioSegment(
             data=frame.to_ndarray().tobytes(),
@@ -31,9 +40,25 @@ def add_audio_chunk(audio_frame, audio_chunk):
     return audio_chunk
 
 
-def save_transcription(file_path, transcription):
-    with open(file_path, "w") as f:
-        f.write(transcription)
+def list_meetings():
+    """
+    List all meetings in the directory.
+    Returns:
+        List of meeting directories.
+    """
+    meetings_list = DIR_FILES.glob("*")
+    meetings_list = list(meetings_list)
+    meetings_list.sort(reverse=True)
+    meetings_dict = {}
+    for meeting in meetings_list:
+        meeting_date = meeting.stem
+        year, month, day, hour, minute, second = meeting_date.split("-")
+        title = read_text_file(meeting / "title.txt")
+        meetings_dict[meeting_date] = (
+            f"{year}/{month}/{day} {hour}:{minute}:{second} - {title}"
+        )
+
+    return meetings_dict
 
 
 def tab_recorder():
@@ -52,7 +77,7 @@ def tab_recorder():
 
     container = st.empty()
     container.markdown("Recording...")
-    dir_meeting = DIR_FILES / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    dir_meeting = DIR_FILES / datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     dir_meeting.mkdir(exist_ok=True)
 
     last_transcription = time.time()
@@ -78,7 +103,11 @@ def tab_recorder():
                         dir_meeting / "audio_chunk.mp3"
                     )
                     transcription += transcription_chunk
-                    save_transcription(dir_meeting / "transcription.txt", transcription)
+                    save_text_file(dir_meeting / "transcription.txt", transcription)
+                    save_text_file(
+                        dir_meeting / "title.txt", get_meeting_title(transcription)
+                    )
+
                     container.markdown(transcription)
                     audio_chunk = pydub.AudioSegment.empty()
         else:
@@ -86,7 +115,24 @@ def tab_recorder():
 
 
 def tab_summarizer():
-    st.markdown("tab_summarizer")
+    dict_meetings = list_meetings()
+    if not dict_meetings:
+        st.warning("No meetings found.")
+        return
+    selected_meeting = st.selectbox(
+        "Select a meeting", options=list(dict_meetings.values())
+    )
+    st.divider()
+    meeting_date = list(dict_meetings.keys())[
+        list(dict_meetings.values()).index(selected_meeting)
+    ]
+    dir_meeting = DIR_FILES / meeting_date
+    title = read_text_file(dir_meeting / "title.txt")
+    transcription = read_text_file(dir_meeting / "transcription.txt")
+    st.markdown(f"# **{title}**")
+    st.markdown(f"## **Meeting Date:** {selected_meeting}")
+    st.markdown("### **Transcription:**")
+    st.markdown(transcription)
 
 
 def main():
