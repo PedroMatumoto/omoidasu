@@ -5,6 +5,43 @@ _ = load_dotenv(find_dotenv())
 
 client = openai.OpenAI()
 
+def generate_pdf(title, meeting_date, abstract, transcription, output_path):
+    """
+    Generate a PDF file with the meeting information.
+    Args:
+        title: Meeting title.
+        meeting_date: Meeting date.
+        abstract: Meeting abstract.
+        transcription: Meeting transcription.
+        output_path: Path to save the generated PDF.
+    """
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
+    pdf.set_font("Arial", style="B", size=16)
+    pdf.cell(0, 10, f"Meeting Title: {title}", ln=True, align="C")
+    pdf.ln(10)
+
+    pdf.set_font("Arial", size=12)
+    pdf.cell(0, 10, f"Meeting Date: {meeting_date}", ln=True)
+    pdf.ln(10)
+
+    pdf.set_font("Arial", style="B", size=14)
+    pdf.cell(0, 10, "Abstract:", ln=True)
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, abstract)
+    pdf.ln(10)
+
+    pdf.set_font("Arial", style="B", size=14)
+    pdf.cell(0, 10, "Transcription:", ln=True)
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, transcription)
+
+    pdf.output(output_path)
+
+
 
 def get_meeting_title(transcription):
     """

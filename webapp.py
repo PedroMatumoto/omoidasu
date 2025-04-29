@@ -11,7 +11,7 @@ from dotenv import find_dotenv, load_dotenv
 
 from transcript import transcribe_audio, transcribe_in_chunks
 from chatting import chat
-from utils import get_meeting_title, save_text_file, read_text_file, generate_abstract
+from utils import get_meeting_title, save_text_file, read_text_file, generate_abstract, generate_pdf
 
 DIR_FILES = Path(__file__).parent / "files"
 DIR_FILES.mkdir(exist_ok=True)
@@ -140,6 +140,21 @@ def tab_summarizer():
     st.markdown(f"## **Meeting Date:** {meeting_date}")
     st.markdown("### **Abstract:**")
     st.markdown(abstract)
+    st.markdown("### **Download Meeting Minutes**")
+    st.markdown(
+        "Download the meeting minutes in PDF format. "
+        "The minutes will be generated based on the transcription and abstract."
+    )
+    if st.button("Generate PDF"):
+        pdf_path = dir_meeting / "meeting_minutes.pdf"
+        generate_pdf(title, meeting_date, abstract, transcription, pdf_path)
+        with open(pdf_path, "rb") as pdf_file:
+            st.download_button(
+                label="Download Meeting Minutes PDF",
+                data=pdf_file,
+                file_name="meeting_minutes.pdf",
+                mime="application/pdf",
+            )
     st.markdown("### **Transcription:**")
     st.markdown(transcription)
 
