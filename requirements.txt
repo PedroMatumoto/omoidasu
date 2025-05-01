@@ -5,3 +5,4 @@ streamlit
 streamlit_webrtc
 pydub
 fpdf
+imageio-ffmpeg

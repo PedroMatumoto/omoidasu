@@ -2,6 +2,7 @@ from pathlib import Path
 from datetime import datetime
 import time
 import queue
+import imageio_ffmpeg
 from streamlit_webrtc import WebRtcMode, webrtc_streamer
 import streamlit as st
 import pydub
@@ -25,6 +26,9 @@ DIR_FILES.mkdir(exist_ok=True)
 _ = load_dotenv(find_dotenv())
 
 client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
+pydub.AudioSegment.converter = ffmpeg_path
 
 
 def add_audio_chunk(audio_frame, audio_chunk):

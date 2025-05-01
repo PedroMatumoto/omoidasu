@@ -3,11 +3,14 @@ from dotenv import find_dotenv, load_dotenv
 from pydub import AudioSegment
 import os
 import streamlit as st
+import imageio_ffmpeg
 
 
 _ = load_dotenv(find_dotenv())
 
 client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
+AudioSegment.converter = ffmpeg_path
 
 
 def split_audio(file_path, chunk_length_ms=60000):
