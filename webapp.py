@@ -18,7 +18,7 @@ from utils import (
     read_text_file,
     generate_abstract,
     generate_pdf,
-    delete_files,
+    delete_all_files,
 )
 
 DIR_FILES = Path(__file__).parent / "files"
@@ -128,7 +128,7 @@ def tab_recorder():
 def tab_summarizer():
     # colcoar botao de deletar arquivos
     if st.button("Delete all files"):
-        delete_files(DIR_FILES)
+        delete_all_files(DIR_FILES)
         st.success("All files deleted successfully!")
 
     dict_meetings = list_meetings()
