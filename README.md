@@ -5,6 +5,10 @@
 
 **omoidasu** is a Python-based platform designed to summarize meetings. It transforms meeting transcripts into concise and organized summaries, facilitating the tracking and retrieval of important discussed information.
 
+## Demo Video
+https://github.com/user-attachments/assets/77d398f1-fbed-40a8-9758-f24eb28cae6f
+
+
 ## Project Structure
 
 The repository contains the following main files and directories:
