@@ -2,6 +2,7 @@ from fpdf import FPDF
 import openai
 from dotenv import find_dotenv, load_dotenv
 import streamlit as st
+import shutil
 
 _ = load_dotenv(find_dotenv())
 
@@ -128,7 +129,8 @@ def delete_all_files(dir_meeting):
     Args:
         dir_meeting: Path to the meeting directory.
     """
-    for file in dir_meeting.iterdir():
-        if file.is_file():
-            file.unlink()
-    dir_meeting.rmdir()
+    for item in dir_meeting.iterdir():
+        if item.is_file():
+            item.unlink()
+        elif item.is_dir():
+            shutil.rmtree(item)
