@@ -1,9 +1,12 @@
+from fpdf import FPDF
 import openai
 from dotenv import find_dotenv, load_dotenv
+import streamlit as st
 
 _ = load_dotenv(find_dotenv())
 
-client = openai.OpenAI()
+client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
 
 def generate_pdf(title, meeting_date, abstract, transcription, output_path):
     """
@@ -40,7 +43,6 @@ def generate_pdf(title, meeting_date, abstract, transcription, output_path):
     pdf.multi_cell(0, 10, transcription)
 
     pdf.output(output_path)
-
 
 
 def get_meeting_title(transcription):

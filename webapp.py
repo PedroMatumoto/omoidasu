@@ -11,14 +11,20 @@ from dotenv import find_dotenv, load_dotenv
 
 from transcript import transcribe_audio, transcribe_in_chunks
 from chatting import chat
-from utils import get_meeting_title, save_text_file, read_text_file, generate_abstract, generate_pdf
+from utils import (
+    get_meeting_title,
+    save_text_file,
+    read_text_file,
+    generate_abstract,
+    generate_pdf,
+)
 
 DIR_FILES = Path(__file__).parent / "files"
 DIR_FILES.mkdir(exist_ok=True)
 
 _ = load_dotenv(find_dotenv())
 
-client = openai.OpenAI()
+client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 
 def add_audio_chunk(audio_frame, audio_chunk):
@@ -113,6 +119,7 @@ def tab_recorder():
         else:
             break
 
+
 def tab_summarizer():
     dict_meetings = list_meetings()
     if not dict_meetings:
@@ -158,11 +165,10 @@ def tab_summarizer():
     st.markdown("### **Transcription:**")
     st.markdown(transcription)
 
+
 def tab_file_uploader():
     st.subheader("Upload a meeting audio file")
-    uploaded_file = st.file_uploader(
-        "Choose an audio file", type=["mp3", "wav", "ogg"]
-    )
+    uploaded_file = st.file_uploader("Choose an audio file", type=["mp3", "wav", "ogg"])
     if uploaded_file is not None:
         dir_meeting = DIR_FILES / datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
         dir_meeting.mkdir(exist_ok=True)
@@ -175,9 +181,7 @@ def tab_file_uploader():
             dir_meeting / uploaded_file.name, language="pt"
         )
         save_text_file(dir_meeting / "transcription.txt", transcription)
-        save_text_file(
-            dir_meeting / "title.txt", get_meeting_title(transcription)
-        )
+        save_text_file(dir_meeting / "title.txt", get_meeting_title(transcription))
         st.markdown("Transcription completed!")
         st.markdown(transcription)
 
@@ -199,15 +203,18 @@ def main():
         " It can assist in organizing the information discussed and producing a clear and concise summary."
     )
 
-    ui_tab_recorder, ui_tab_file_uploader, ui_tab_summarizer,= st.tabs(
-        ["Meeting Recorder", "Upload Meeting", "Meeting Summaries"]
-    )
+    (
+        ui_tab_recorder,
+        ui_tab_file_uploader,
+        ui_tab_summarizer,
+    ) = st.tabs(["Meeting Recorder", "Upload Meeting", "Meeting Summaries"])
     with ui_tab_recorder:
         tab_recorder()
     with ui_tab_summarizer:
         tab_summarizer()
     with ui_tab_file_uploader:
         tab_file_uploader()
+
 
 if __name__ == "__main__":
     main()
