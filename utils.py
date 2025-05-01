@@ -120,3 +120,15 @@ def read_text_file(file_path):
         text = f.read()
         f.close()
         return text
+
+
+def delete_all_files(dir_meeting):
+    """
+    Delete all files in the meeting directory.
+    Args:
+        dir_meeting: Path to the meeting directory.
+    """
+    for file in dir_meeting.iterdir():
+        if file.is_file():
+            file.unlink()
+    dir_meeting.rmdir()
