@@ -180,20 +180,31 @@ def tab_file_uploader():
     st.subheader("Upload a meeting audio file")
     uploaded_file = st.file_uploader("Choose an audio file", type=["mp3", "wav", "ogg"])
     if uploaded_file is not None:
-        dir_meeting = DIR_FILES / datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        dir_meeting.mkdir(exist_ok=True)
-        with open(dir_meeting / uploaded_file.name, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        st.success("File uploaded successfully!")
-        st.audio(dir_meeting / uploaded_file.name, format="audio/mp3")
-        st.markdown("Transcribing...")
-        transcription = transcribe_in_chunks(
-            dir_meeting / uploaded_file.name, language="pt"
-        )
-        save_text_file(dir_meeting / "transcription.txt", transcription)
-        save_text_file(dir_meeting / "title.txt", get_meeting_title(transcription))
-        st.markdown("Transcription completed!")
-        st.markdown(transcription)
+        if "last_uploaded_filename" not in st.session_state or st.session_state.last_uploaded_filename != uploaded_file.name:
+            dir_meeting = DIR_FILES / datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+            dir_meeting.mkdir(exist_ok=True)
+            with open(dir_meeting / uploaded_file.name, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+            st.session_state.last_uploaded_filename = uploaded_file.name
+            st.session_state.dir_meeting = str(dir_meeting)
+            st.success("File uploaded successfully!")
+            st.audio(dir_meeting / uploaded_file.name, format="audio/mp3")
+            st.markdown("Transcribing...")
+            transcription = transcribe_in_chunks(
+                dir_meeting / uploaded_file.name, language="pt"
+            )
+            save_text_file(dir_meeting / "transcription.txt", transcription)
+            save_text_file(dir_meeting / "title.txt", get_meeting_title(transcription))
+            st.session_state.transcription = transcription
+            st.markdown("Transcription completed!")
+            st.markdown(transcription)
+            st.rerun()
+        else:
+            dir_meeting = Path(st.session_state.dir_meeting)
+            st.success("File uploaded successfully!")
+            st.audio(dir_meeting / uploaded_file.name, format="audio/mp3")
+            st.markdown("Transcription completed!")
+            st.markdown(st.session_state.transcription)
 
 
 def main():
